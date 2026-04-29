@@ -8,7 +8,8 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "tauri:icons": "tauri icon src-tauri/app-icon.svg",
-    "tauri": "npm run tauri:icons && tauri"
+    "tauri:cli": "tauri",
+    "tauri": "npm run tauri:icons && npm run tauri:cli"
   },
   "dependencies": {
     "@tauri-apps/api": "2.10.1",

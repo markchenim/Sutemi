@@ -52,6 +52,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm install --no-fund --no-audit
 
+      - name: Generate Tauri icons
+        run: npm run tauri:icons
+
       - name: Build and upload release artifacts
         uses: tauri-apps/tauri-action@v0
         env:
