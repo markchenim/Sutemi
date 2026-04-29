@@ -6,6 +6,7 @@ type DashboardData = {
   repoPath: string;
   repoRoot: string | null;
   jjVersion: string | null;
+  statusSummary: string;
   status: string;
   log: string;
   bookmarks: string;
@@ -19,6 +20,7 @@ const repoPath = ref("");
 const loading = ref(false);
 const failure = ref<string | null>(null);
 const dashboard = ref<DashboardData | null>(null);
+let refreshToken = 0;
 
 const heroMessage = computed(() => {
   if (loading.value) {
@@ -44,18 +46,28 @@ const heroMessage = computed(() => {
   return `Tracking ${dashboard.value.repoRoot} with a native jj bridge.`;
 });
 
+const repoLabel = computed(() => dashboard.value?.repoRoot ?? dashboard.value?.repoPath ?? "No path selected");
+
 async function refresh() {
+  const token = ++refreshToken;
   loading.value = true;
   failure.value = null;
 
   try {
-    dashboard.value = await invoke<DashboardData>("load_dashboard", {
+    const nextDashboard = await invoke<DashboardData>("load_dashboard", {
       repoPath: repoPath.value.trim() || null,
     });
+    if (token === refreshToken) {
+      dashboard.value = nextDashboard;
+    }
   } catch (error) {
-    failure.value = error instanceof Error ? error.message : String(error);
+    if (token === refreshToken) {
+      failure.value = error instanceof Error ? error.message : String(error);
+    }
   } finally {
-    loading.value = false;
+    if (token === refreshToken) {
+      loading.value = false;
+    }
   }
 }
 
@@ -115,6 +127,10 @@ onMounted(() => {
         <span class="metric-label">Version</span>
         <strong>{{ dashboard?.jjVersion ?? "Unavailable" }}</strong>
       </article>
+      <article class="metric surface">
+        <span class="metric-label">Workspace pulse</span>
+        <strong>{{ dashboard?.statusSummary ?? "Waiting" }}</strong>
+      </article>
     </section>
 
     <p v-if="failure" class="banner error">{{ failure }}</p>
@@ -125,6 +141,7 @@ onMounted(() => {
         <header>
           <p class="eyebrow">Status</p>
           <h2>Working copy</h2>
+          <p class="subtle">{{ repoLabel }}</p>
         </header>
         <pre>{{ dashboard?.status ?? "Run a refresh to load jj status." }}</pre>
       </article>
