@@ -19,7 +19,7 @@ Sutemi is a Tauri + Vue desktop GUI for [Jujutsu](https://github.com/jj-vcs/jj).
 
 ## Release flow
 
-Pushing a tag like `v0.1.0` triggers `.github/workflows/release.yml` and builds installers for:
+Pushing a tag like `v0.2.0` triggers `.github/workflows/release.yml` and builds installers for:
 
 - macOS
 - Linux
